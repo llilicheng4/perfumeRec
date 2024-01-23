@@ -14,6 +14,14 @@ export interface Book {
   _additional: AdditionalType;
 }
 
+export interface Perfume {
+  name: string;
+  brand: string;
+  image: string;
+  description: string;
+  _additional: AdditionalType;
+}
+
 
 export interface NearTextType {
   concepts: [string] | [];

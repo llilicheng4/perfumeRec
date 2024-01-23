@@ -6,32 +6,46 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-WEAVIATE_CLUSTER_URL = os.getenv('WEAVIATE_CLUSTER_URL') or 'https://zxzyqcyksbw7ozpm5yowa.c0.us-west2.gcp.weaviate.cloud'
-WEAVIATE_API_KEY = os.getenv('WEAVIATE_API_KEY') or 'n6mdfI32xrXF3DH76i8Pwc2IajzLZop2igb6'
-OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
-COHERE_API_KEY = os.getenv('COHERE_API_KEY')
-
 client = weaviate.Client(
-    url=WEAVIATE_CLUSTER_URL,
-    auth_client_secret=weaviate.AuthApiKey(api_key=WEAVIATE_API_KEY),
-    additional_headers={"X-OpenAI-Api-Key": OPENAI_API_KEY, "X-Cohere-Api-Key": COHERE_API_KEY})
-
+    url="http://localhost:8080/", 
+)
 nearText = {
     "concepts":
-    ["technology", "data structures and algorithms", "distributed systems"]
+    ["rose", "expensive", "unisex", "delicious", "unoffensive"]
 }
-generate_prompt = "Explain why this book might be interesting to someone who likes playing the violin, rock climbing, and doing yoga. the book's title is {title}, with a description: {description}, and is in the genre: {categories}."
-response = (client.query.get("Book", [
-    "title",
-    "isbn10",
-    "isbn13",
-    "categories",
-    "thumbnail",
-    "description",
-    "num_pages",
-    "average_rating",
-    "published_year",
-    "authors",
-]) .with_generate(single_prompt=generate_prompt).with_near_text(nearText).with_limit(10).do())
+# generate_prompt = "Explain why this perfume might be well loved to someone who likes playing the strong, delicious flavours. the Perfumes's name is {name} from the brand: {brand}, with a description: {description}, and it is: {gender}."
+# response = (
+#     client.query
+#     .get("Perfume", [
+#     "name",
+#     "description",
+#     "brand",
+#     "gender",
+#     "top_notes",
+#     "middle_notes",
+#     "base_notes"])
+#     .with_near_text(nearText)
+#     .with_limit(5)
+#     .with_additional(["distance"])
+#     .do()
+# )
 
-print(json.dumps(response, indent=4))
+# response = (
+#     client.query.get("Perfume", ["name", "brand"])
+#     .with_additional("id")
+#     .with_limit(1).do()
+# )
+
+# print(response)
+response = (
+    client.query
+    .get("Perfume", ["name", "brand"])
+    .with_near_object({
+        "id": "000d601c-56a7-41eb-bf64-3342600fd944"
+    })
+    .with_limit(5)
+    .with_additional(["distance"])
+    .do()
+)
+
+print(json.dumps(response, indent=2))

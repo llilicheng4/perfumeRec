@@ -1,7 +1,7 @@
 import { SyntheticEvent, useState } from 'react';
 import CircleLoader from 'react-spinners/CircleLoader';
 import Modal from 'react-modal';
-import { Book } from 'types';
+import { Perfume } from 'types';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,12 +30,13 @@ export default function Home() {
   const [userInterests, setUserInterests] = useState('');
   const [recommendedBooks, setRecommendedBooks] = useState([]);
   const [modalIsOpen, setIsOpen] = useState(false);
-  const [selectedBook, setSelectedbook] = useState<Book | undefined>(undefined);
+  const [selectedBook, setSelectedbook] = useState<Perfume | undefined>(undefined);
 
-  const openModal = (book_title: string) => {
-    const bookSelection = recommendedBooks.filter((book: Book) => {
-      return book.title === book_title;
+  const openModal = (perfume_name: string) => {
+    const bookSelection = recommendedBooks.filter((perfume: Perfume) => {
+      return perfume.name === perfume_name;
     });
+
     console.log(bookSelection);
     setSelectedbook(bookSelection[0]);
     setIsOpen(true);
@@ -56,7 +57,7 @@ export default function Home() {
 
     setIsLoading(true);
 
-    await fetch('/api/recommendations', {
+    await fetch('/api/search', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -71,8 +72,8 @@ export default function Home() {
         if (res.ok) return res.json();
       })
       .then((recommendations) => {
-        console.log(recommendations.data.Get.Book);
-        setRecommendedBooks(recommendations.data.Get.Book);
+        console.log(recommendations.data.Get.Perfume);
+        setRecommendedBooks(recommendations.data.Get.Perfume);
       });
 
     setIsLoading(false);
@@ -90,7 +91,7 @@ export default function Home() {
       >
         <div className="flex justify-between">
           <h3 className="mt-2 text-lg font-semibold text-gray-700">
-            {selectedBook?.title}
+            {selectedBook?.name}
           </h3>
           <Button
             className="hover:font-bold rounded hover:bg-gray-700 p-2 w-20 hover:text-white "
@@ -103,27 +104,18 @@ export default function Home() {
           <div className='flex justify-center py-10'>
             <div className="w-48 h-72">
               <img
-                src={selectedBook?.thumbnail}
-                alt={"Thumbnail of the book " + selectedBook?.title}
+                src={selectedBook?.image}
+                alt={"Thumbnail of the book " + selectedBook?.name}
                 className="w-full h-full rounded-lg shadow-lg"
               />
             </div>
           </div>
           <div>
-            <p className="mt-1 text-gray-500"><span className="font-bold">Authors</span>:{' '}{selectedBook?.authors}</p>
-            <p>
-              <span className="font-bold">Genre</span>:{' '}{selectedBook?.categories}
-            </p>
-            <p>
-              <span className="font-bold">Rating</span>:{' '}{selectedBook?.average_rating}
-            </p>
-            <p>
-              <span className="font-bold">Publication Year</span>:{' '}{selectedBook?.published_year}
-            </p><br />
+
             <p>{selectedBook?.description}</p>
 
             <div className="flex justify-center">
-              <a
+              {/* <a
                 className="hover:animate-pulse"
                 target="_blank"
                 href={'https://www.amazon.com/s?k=' + selectedBook?.isbn10}
@@ -132,7 +124,7 @@ export default function Home() {
                   className="w-60"
                   src="https://kentuckynerd.com/wp-content/uploads/2019/05/amazon-buy-now-button.jpg"
                 />
-              </a>
+              </a> */}
             </div>
           </div>
 
@@ -141,7 +133,7 @@ export default function Home() {
       <div className="mb-auto py-10 px-4 bg-gray-100">
         <div className="container mx-auto">
           <h1 className="text-3xl font-black font-bold mb-6 text-center">
-            Book Recommendations
+            Perfume Recommendations
           </h1>
 
           <form
@@ -150,13 +142,13 @@ export default function Home() {
             onSubmit={getRecommendations}
           >
             <div className="mb-4">
-            <label
+              <label
                 htmlFor="favorite-books"
                 className="block text-gray-700 font-bold mb-2"
               >
-                What would you like to get a book recommendation on?
+                Describe your perfect perfume!
               </label>
-              <Input 
+              <Input
                 type="text"
                 id="favorite-books"
                 name="favorite-books"
@@ -175,7 +167,7 @@ export default function Home() {
                   >
                     Your interests and hobbies
                   </label>
-                  <Input 
+                  <Input
                     type="text"
                     id="interests-input"
                     name="interests"
@@ -211,7 +203,7 @@ export default function Home() {
               {loadedOnce ? (
                 <>
                   <h2 className="text-2xl font-bold mb-4 text-center">
-                    Recommended Books
+                    Recommended Perfumes
                   </h2>
                   <div
                     id="recommended-books"
@@ -220,38 +212,38 @@ export default function Home() {
                     {/* <!-- Recommended books dynamically added here --> */}
                     <section className="container mx-auto mb-12">
                       <div className="flex flex-wrap -mx-2">
-                        {recommendedBooks.map((book: Book) => {
+                        {recommendedBooks.map((book: Perfume) => {
                           return (
-                            <div key={book.isbn10 || book.isbn13} className="w-full md:w-1/3 px-2 mb-4 animate-pop-in">
+                            <div key={book.name || book.brand} className="w-full md:w-1/3 px-2 mb-4 animate-pop-in">
                               <div className="bg-white p-6 flex items-center flex-col">
                                 <div className='flex justify-between w-full'>
-                                  <h3 className="text-xl font-semibold mb-4 line-clamp-1">{book.title}</h3>
+                                  <h3 className="text-xl font-semibold mb-4 line-clamp-1">{book.name}</h3>
                                   {process.env.NEXT_PUBLIC_COHERE_CONFIGURED && book._additional.generate.error != "connection to Cohere API failed with status: 429" && (
-                                      <Popover>
-                                        <PopoverTrigger asChild>
-                                          <Button className='rounded-full p-2 bg-black cursor-pointer w-10 h-10'>✨</Button>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-80 h-80 overflow-auto">
-                                          <div>
-                                            <p className='text-2xl font-bold'>Why you&apos;ll like this book:</p>
-                                            <br/>
-                                            <p>{book._additional.generate.singleResult}</p>
-                                          </div>
-                                        </PopoverContent>
-                                      </Popover>
-                                    )}
-                                  
+                                    <Popover>
+                                      <PopoverTrigger asChild>
+                                        <Button className='rounded-full p-2 bg-black cursor-pointer w-10 h-10'>✨</Button>
+                                      </PopoverTrigger>
+                                      <PopoverContent className="w-80 h-80 overflow-auto">
+                                        <div>
+                                          <p className='text-2xl font-bold'>Why you&apos;ll like this book:</p>
+                                          <br />
+                                          <p>{book._additional.generate.singleResult}</p>
+                                        </div>
+                                      </PopoverContent>
+                                    </Popover>
+                                  )}
+
                                 </div>
                                 <div className='w-48 h-72'>
                                   <img
-                                    src={book.thumbnail}
-                                    alt={"Thumbnail of the book " + book.title}
+                                    src={book.image}
+                                    alt={"Thumbnail of the book " + book.name}
                                     className="w-full h-full rounded-lg shadow-lg"
                                   />
                                 </div>
-                                <p className="mt-4 text-gray-500 line-clamp-1">{book.authors}</p>
+                                <p className="mt-4 text-gray-500 line-clamp-1">{book.brand}</p>
                                 <div className='flex'>
-                                  <Button className="bg-black text-white w-full rounded-md hover:bg-gray-800 hover:text-white" type="submit" variant="outline" onClick={() => { openModal(book.title) }}>
+                                  <Button className="bg-black text-white w-full rounded-md hover:bg-gray-800 hover:text-white" type="submit" variant="outline" onClick={() => { openModal(book.name) }}>
                                     Learn More
                                   </Button>
                                 </div>
@@ -277,9 +269,9 @@ export default function Home() {
 
       <footer className="justify-center items-center bg-gray-600 text-white h-20 flex flex-col">
         <div>
-        Deploy it on &nbsp;<a href="https://vercel.com/templates/next.js/weaviate-bookrecs" className="underline text-blue-200">Vercel</a> and checkout the code on <a href="https://github.com/weaviate/BookRecs/" className="underline text-blue-200">Github</a>.</div>
+          Deploy it on &nbsp;<a href="https://vercel.com/templates/next.js/weaviate-bookrecs" className="underline text-blue-200">Vercel</a> and checkout the code on <a href="https://github.com/weaviate/BookRecs/" className="underline text-blue-200">Github</a>.</div>
         <div>
-        Made with ❤️ by &nbsp;<a href="https://x.com/aj__chan/" target="_blank" className="underline text-blue-200">@aj__chan</a> &nbsp; and built with &nbsp;<a target="_blank" href="https://weaviate.io/" className="underline text-blue-200">Weaviate</a>.</div>
+          Made with ❤️ by &nbsp;<a href="https://x.com/aj__chan/" target="_blank" className="underline text-blue-200">@aj__chan</a> &nbsp; and built with &nbsp;<a target="_blank" href="https://weaviate.io/" className="underline text-blue-200">Weaviate</a>.</div>
       </footer>
     </div>
   );

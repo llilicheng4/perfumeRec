@@ -1,80 +1,206 @@
 import os
 import csv
 import weaviate
-
+import pymongo
 from dotenv import load_dotenv
-
 load_dotenv()
 
-WEAVIATE_CLUSTER_URL = os.getenv('WEAVIATE_CLUSTER_URL')
-WEAVIATE_API_KEY = os.getenv('WEAVIATE_API_KEY')
-OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
-COHERE_API_KEY = os.getenv('COHERE_API_KEY')
+def combine_lists(list1, list2):
+    """Combines two lists, handling potential None values.
+
+    Args:
+        list1: The first list.
+        list2: The second list.
+
+    Returns:
+        A combined list, or an empty list if both inputs are None.
+    """
+
+    combined_list = []
+    if list1 is not None:
+        combined_list.extend(list1)
+    if list2 is not None:
+        combined_list.extend(list2)
+    return combined_list
+
+mongoclient = pymongo.MongoClient(os.getenv('MONGODBURI'))
 
 client = weaviate.Client(
-    url=WEAVIATE_CLUSTER_URL,
-    auth_client_secret=weaviate.AuthApiKey(api_key=WEAVIATE_API_KEY), 
-    additional_headers={"X-OpenAI-Api-Key": OPENAI_API_KEY, "X-Cohere-Api-Key": COHERE_API_KEY})
+    url="http://localhost:8080/", 
+)
 
-client.schema.delete_class("Book")
+# client.schema.delete_class("Perfume")
 
 class_obj = {
-    "class": "Book",
-    "vectorizer": "text2vec-openai",
+    "class": "Perfume",
+    "description": "A class that represents a perfume and its related data such as reviews, pros, cons.. etc",
+    "vectorizer": "text2vec-transformers",
     "moduleConfig": {
-        "text2vec-openai": {
-            "model": "ada",
-            "modelVersion": "002",
-            "type": "text"
-        },
-        "generative-cohere": {
-
+        "text2vec-transformers": {
+            "vectorizeClassName": True,
         }
-    }
+    },
+    "properties": [
+        {
+            "name": "mongoid",
+            "dataType": ["text"],
+        },
+        {
+            "name": "name",
+            "dataType": ["text"],
+        },
+        {
+            "name": "brand",
+            "dataType": ["text"],
+        },
+        {
+            "name": "gender",
+            "dataType": ["text"],
+        },
+        # {
+        #     "name": "ACCORDS",
+        #     "dataType": ["object[]"],
+        # },
+        {
+            "name": "top_notes",
+            "dataType": ["text"],
+            "moduleConfig": {
+            "text2vec-transformers": {
+              "vectorizePropertyName": True
+            }
+          }
+        },
+        {
+            "name": "middle_notes",
+            "dataType": ["text"],
+            "moduleConfig": {
+            "text2vec-transformers": {
+              "vectorizePropertyName": True
+            }
+          }
+        },
+        {
+            "name": "base_notes",
+            "dataType": ["text"],
+            "moduleConfig": {
+            "text2vec-transformers": {
+              "vectorizePropertyName": True
+            }
+          }
+        },
+        {
+            "name": "pros",
+            "dataType": ["text[]"],
+        },
+        {
+            "name": "cons",
+            "dataType": ["text[]"],
+        },
+        {
+            "name": "summary",
+            "dataType": ["text"],
+        },
+        {
+            "name": "description",
+            "dataType": ["text"],
+        },
+        {
+            "name": "reviews",
+            "dataType": ["text[]"],
+            "moduleConfig": {
+            "text2vec-transformers": {
+              "vectorizePropertyName": True
+            }
+          }
+        },
+        {
+            "name": "image",
+            "dataType": ["text"],
+            "moduleConfig": {
+            "text2vec-transformers": {
+              "skip": True,
+            }
+          }
+        },
+    ],
 }
 
-client.schema.create_class(class_obj)
+# client.schema.create_class(class_obj)
 
-f = open("./data-pipeline/7k-books-kaggle.csv", "r")
-current_book = None
+db = mongoclient["test"]
+collection = db["perfumes"]
+
+all_documents = collection.find()
+
+
+
+current_perfume = None
+count = 0
 try:
   with client.batch as batch:  # Initialize a batch process
     batch.batch_size = 100
-    reader = csv.reader(f)
+    
     # Iterate through each row of data
-    for book in reader:
-      current_book = book
-      # 0 - isbn13
-      # 1 - isbn10
-      # 2 - title
-      # 3 - subtitle
-      # 4 - authors
-      # 5 - categories
-      # 6 - thumbnail
-      # 7 - description
-      # 8 - published_year
-      # 9 - average_rating
-      # 10 - num_pages
-      # 11 - ratings_count
-
+    for perfume in all_documents:
+      
+      count+=1
+      if count <= 1905:
+        continue
+      current_perfume = perfume
+      
+      gen_text = raw_top_string=raw_middle_string=raw_base_string = None
+      
+      if(perfume["GENDER"] == 0):
+        gen_text = "For Females"
+      elif(perfume["GENDER"] == 1):
+        gen_text = "For Males"
+      else:
+        gen_text = "For Both Females and Males"
+      
+      print("gender ok")
+      
+      if perfume["TOP_NOTES"] != None:
+        raw_top_string = ",".join(perfume["TOP_NOTES"])
+        print("top ok")
+      if perfume["MIDDLE_NOTES"] != None:    
+        raw_middle_string = ",".join(perfume["MIDDLE_NOTES"])
+        
+      if perfume["BASE_NOTES"] != None:  
+        raw_base_string = ",".join(perfume["BASE_NOTES"])
+        print("mid ok")
+        
+      if perfume["BASE_NOTES"] != None:  
+        raw_base_string = ",".join(perfume["BASE_NOTES"])
+        print("bot ok")
+        
+      
+      combined_reviews = combine_lists(perfume["POPULAR_REVIEWS"], perfume["NEGATIVE_REVIEWS"])
+      print("reviews combined")
+        
+      perfume_id = str(perfume["_id"])
+      print("id cleared")
+        
+      print(perfume_id)
+        
+      print(f"count: {count}")  
       properties = {
-          "isbn13": book[0],
-          "isbn10": book[1],
-          "title": book[2],
-          "subtitle": book[3],
-          "authors": book[4],
-          "categories": book[5],
-          "thumbnail": book[6],
-          "description": book[7],
-          "published_year": book[8],
-          "average_rating": book[9],
-          "num_pages": book[10],
-          "ratings_count": book[11],
+          "mongoid": perfume_id,
+          "name": perfume["NAME"],
+          "brand": perfume["BRAND"],
+          "gender": gen_text,
+          # "ACCORDS": perfume["ACCORDS"],
+          "top_notes": raw_top_string,
+          "middle_notes": raw_middle_string,
+          "base_notes": raw_base_string,
+          "pros": perfume["PROS"],
+          "cons": perfume["CONS"],
+          "summary": perfume["SUMMARY"],
+          "description": perfume["DESC"],
+          "reviews": combined_reviews,
+          "image": perfume["IMAGE"],
       }
 
-      batch.add_data_object(data_object=properties, class_name="Book")
+      batch.add_data_object(data_object=properties, class_name="Perfume")
       # print(f"{book[2]}: {uuid}", end='\n')
 except Exception as e:
-  print(f"something happened {e}. Failure at {current_book}")
-
-f.close()
+  print(f"something happened {e}. Failure at {current_perfume}. count: {count}")
