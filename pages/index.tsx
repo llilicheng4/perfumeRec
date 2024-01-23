@@ -51,13 +51,13 @@ export default function Home() {
 
     // Check Inputs
     if (query === '') {
-      alert("Please let us know what you'd like to learn!");
+      alert("Please Describe Your Perfect Fragrance!");
       return;
     }
 
     setIsLoading(true);
 
-    await fetch('/api/search', {
+    await fetch('/api/recommendations', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -152,7 +152,7 @@ export default function Home() {
                 type="text"
                 id="favorite-books"
                 name="favorite-books"
-                placeholder="I'd like to learn..."
+                placeholder="My perfect perfume..."
                 className="block w-full px-4 py-2 border border-gray-300 bg-white rounded-md shadow-sm "
                 value={query}
                 onChange={(e) => {

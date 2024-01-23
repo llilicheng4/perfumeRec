@@ -9,7 +9,7 @@ export default async function handler(
 ) {
     try {
         const { method } = req;
-        let { query, userInterests } = req.body;
+        let { query } = req.body;
 
         switch (method) {
 
@@ -19,22 +19,18 @@ export default async function handler(
                     host: 'localhost:8080',
                 });
 
-                let nearText: NearTextType = {
-                    concepts: [],
-                }
-
-                nearText.certainty = .6
-
-                nearText.concepts = query;
-
                 let recDataBuilder = client.graphql
                     .get()
                     .withClassName('Perfume')
+                    .withWhere({
+                        path: ['name'],
+                        operator: 'Like',
+                        valueText: "*" + query + "*",
+                    })
                     .withFields(
                         'name brand image description'
                     )
-                    .withNearText(nearText)
-                    .withLimit(20);
+                    .withLimit(4);
 
                 const recData = await recDataBuilder.do();
 
