@@ -1,11 +1,6 @@
 # Book Recommendation System (BookRecs)
-[![Weaviate](https://img.shields.io/static/v1?label=powered%20by&message=Weaviate%20%E2%9D%A4&color=green&style=flat-square)](https://weaviate.io/) 
-[![Demo](https://img.shields.io/badge/Check%20out%20the%20demo!-yellow?&style=flat-square&logo=react&logoColor=white)](https://bookrecs.weaviate.io/)
 
-
-This project is a book recommendation service that suggests books based on a user's inputted genre and book titles. It's built upon a database of 7000 books retrieved from Kaggle. Using Ada v2 as the large language model, vector embeddings were created with the Kaggle dataset to allow for quick vector search to find semantically similar books through natural language input. The frontend is built using Next.js and styled with TailwindCSS.
-
-![Project Screenshot](/BookRecs.gif)
+This project is a Perfume recommendation service that suggests perfumes based on a user's inputs. It's built upon a database of 5000 perfumes. By self-hosting sentence-transformers to generate vectors and stored weaviate db 
 
 ## 📑 Table of Contents
 
@@ -64,28 +59,6 @@ To run the project locally, follow these steps:
 8. Try out BookRecs in a browser at http://localhost:3000
 
 
-## 🤝 Configuring Cohere Integration
-
-This project provides book recommendations using a vector database for semantic search. An additional feature is the integration with Cohere through the Weaviate Generative Search module, which provides explainations as to why a user might like a particular book recommendation.
-
-If you would like to enable this feature, you will need to configure the COHERE_API_KEY and NEXT_PUBLIC_COHERE_CONFIGURED environment variables.
-
-Steps
-1. Obtain a Cohere API key by signing up on the [Cohere website](https://cohere.com).
-2. Once you have your API key, open the .env file in the root directory of the project.
-3. Add the following line to the file, replacing 'INSERT_OPEN_API_KEY_HERE' with the API key you obtained from Cohere:
-```
-COHERE_API_KEY=INSERT_OPENAPI_KEY_HERE
-```
-4. To enable the Cohere integration, set the NEXT_PUBLIC_COHERE_CONFIGURED environment variable to "1". Add the following line to the .env file:
-```
-NEXT_PUBLIC_COHERE_CONFIGURED=1
-```
-5. Save the .env file and restart your development server. The Cohere integration should now be enabled.
-
-Please note that the COHERE_API_KEY should be kept secret and not exposed to the client-side of your application.
-
-
 ## 🧰 Usage
 
 To use the service, simply type in a genre and several book titles in the provided input fields. The system will then generate several book recommendations based on your inputs.
@@ -105,16 +78,3 @@ The book data used for this project is sourced from the following Kaggle dataset
 - [Next.js](https://nextjs.org/)
 - [TailwindCSS](https://tailwindcss.com/)
 - [Python Data Pipeline](https://python.org/)
-
-## 🕷 Known Issues
-
-- Some book images are inaccessible due to dead links on the original data set
-
-## 💰 Large Language Model (LLM) Costs
-
-BookRecs exclusively utilizes OpenAI models. Be advised that the usage costs for these models will be billed to the API access key you provide. Primarily, costs are incurred during data embedding and answer generation processes. The default vectorization engine for this project is `Ada v2`.
-
-## 💖 Open Source Contribution
-
-Your contributions are always welcome! Feel free to contribute ideas, feedback, or create issues and bug reports if you find any! Visit our [Weaviate Community Forum](https://forum.weaviate.io/) if you need any help!
-
