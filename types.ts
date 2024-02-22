@@ -4,6 +4,10 @@ export interface Perfume {
   brand: string;
   image: string;
   description: string;
+  reviews?: string[];
+  pros?: string[];
+  cons?: string[];
+  summary?: string;
   _additional: AdditionalType;
 }
 
@@ -19,6 +23,6 @@ export interface AdditionalType {
 }
 
 export interface GenerateType {
-  error: string;
+  error?: string;
   singleResult: string;
 }

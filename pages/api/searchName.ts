@@ -1,7 +1,9 @@
 import { NearTextType } from 'types';
 import type { NextApiRequest, NextApiResponse } from 'next';
-import weaviate, { WeaviateClient } from 'weaviate-ts-client';
+import { WeaviateClient } from 'weaviate-ts-client';
+import { getDb } from '@/lib/weaviateDB';
 
+const client: WeaviateClient = getDb();
 
 export default async function handler(
     req: NextApiRequest,
@@ -14,10 +16,7 @@ export default async function handler(
         switch (method) {
 
             case 'POST': {
-                const client: WeaviateClient = weaviate.client({
-                    scheme: 'http',
-                    host: 'localhost:8080',
-                });
+
 
                 let recDataBuilder = client.graphql
                     .get()
