@@ -11,7 +11,7 @@ export default async function handler(
 ) {
     try {
         const { method } = req;
-        let { query, userInterests } = req.body;
+        let { query } = req.body;
 
         switch (method) {
 

@@ -45,8 +45,8 @@ async function run(description: string, data: Perfume) {
     const parts = [
         { text: "input: This input will be a personal description of the user's perfect perfume" },
         { text: "input 2: This input will be a JSON of information on a recommended perfume for the user" },
-        { text: "output: Explain why the user would like this perfume" },
-        { text: "output 2: Explain why the user would dislike this perfume" },
+        { text: "output: Explain why the user would like this perfume, address the user as you." },
+        { text: "output 2: Explain why the user would dislike this perfume, address the user as you." },
         { text: "input: " + description },
         { text: "input 2: " + JSON.stringify(data) },
         { text: "output: " },

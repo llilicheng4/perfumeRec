@@ -29,7 +29,6 @@ export default async function handler(
                     .withFields(
                         'name brand image description'
                     )
-                    .withLimit(4);
 
                 const recData = await recDataBuilder.do();
 

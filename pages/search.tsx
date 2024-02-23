@@ -6,21 +6,21 @@ import { CircleLoader } from "react-spinners";
 import { Perfume } from "types";
 
 export default function SearchPage() {
-    const [query, setQuery] = useState('');
-    const [queryResults, setQueryResults] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [loadedOnce, setLoadedOnce] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchQueryResults, setSearchQueryResults] = useState([]);
+    const [isSearchLoading, setIsSearchLoading] = useState(false);
+    const [searchLoadedOnce, setSearchLoadedOnce] = useState(false);
 
     const getPerfumes = async (e: SyntheticEvent) => {
         e.preventDefault();
 
         // Check Inputs
-        if (query === '') {
+        if (searchQuery === '') {
             alert("Please input the name of the perfume");
             return;
         }
 
-        setIsLoading(true);
+        setIsSearchLoading(true);
 
         await fetch('/api/searchName', {
             method: 'POST',
@@ -28,7 +28,7 @@ export default function SearchPage() {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                query,
+                query: searchQuery,
             })
         })
             .then((res) => {
@@ -37,11 +37,11 @@ export default function SearchPage() {
             })
             .then((results) => {
                 console.log(results.data.Get.Perfume);
-                setQueryResults(results.data.Get.Perfume);
+                setSearchQueryResults(results.data.Get.Perfume);
             });
 
-        setIsLoading(false);
-        setLoadedOnce(true);
+        setIsSearchLoading(false);
+        setSearchLoadedOnce(true);
     };
 
     return (
@@ -57,19 +57,19 @@ export default function SearchPage() {
                     name="fav-perfume"
                     placeholder="search"
                     className="block w-full px-4 py-2 border border-gray-300 bg-white rounded-md shadow-sm "
-                    value={query}
+                    value={searchQuery}
                     onChange={(e) => {
-                        setQuery(e.target.value);
+                        setSearchQuery(e.target.value);
                     }}
                 />
             </form>
 
 
-            {isLoading ? (
+            {isSearchLoading ? (
                 <div className="w-full flex justify-center h-60 pt-10">
                     <CircleLoader
                         color={'#000000'}
-                        loading={isLoading}
+                        loading={isSearchLoading}
                         size={100}
                         aria-label="Loading"
                         data-testid="loader"
@@ -77,7 +77,7 @@ export default function SearchPage() {
                 </div>
             ) : (
                 <>
-                    {loadedOnce ? (
+                    {searchLoadedOnce ? (
                         <>
                             <h2 className="text-2xl font-bold mb-4 text-center">
                                 Recommended Perfumes
@@ -89,7 +89,7 @@ export default function SearchPage() {
                                 {/* <!-- Recommended perfumes dynamically added here --> */}
                                 <section className="container mx-auto mb-12">
                                     <div className="flex flex-wrap -mx-2">
-                                        {queryResults.map((perfume: Perfume) => {
+                                        {searchQueryResults.map((perfume: Perfume) => {
                                             return (
                                                 <div key={perfume.name || perfume.brand} className="w-full md:w-1/3 px-2 mb-4 animate-pop-in">
                                                     <div className="bg-white p-6 flex items-center flex-col">
